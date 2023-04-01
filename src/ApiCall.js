@@ -1,47 +1,73 @@
 import React, { Component } from 'react';
-import request from 'browser-request';
+import './App.css';
 
-class ApiCall extends Component {
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      timeZone: null,
-      forecast: null,
-      location: null,
+      inputText: '',
+      outputText: '',
+      language: 'es',
+      apiKey: 'AIzaSyA6APQUuxeJUC_nkhOslI0HKZRjINMHrxU',
     };
   }
 
-  componentDidMount() {
-    request('https://api.weather.gov/points/39.7456,-97.0892', (error, response, body) => {
-      const data = JSON.parse(body);
-      const forecastUrl = data.properties.forecast;
-      const locationUrl = data.properties.observationStations;
-      request(forecastUrl, (error, response, body) => {
-        const forecastData = JSON.parse(body);
-        request(locationUrl, (error, response, body) => {
-          const locationData = JSON.parse(body);
-          this.setState({
-            timeZone: data.properties.timeZone,
-            forecast: forecastData.properties.periods[0].detailedForecast,
-            location: locationData.features[0].properties.name,
-          });
-        });
-      });
-    });
+  handleInputChange = (event) => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  }
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    this.translateText();
+  }
+
+  translateText = () => {
+    const { inputText, language, apiKey } = this.state;
+
+    fetch(`https://translation.googleapis.com/language/translate/v2?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        q: inputText,
+        target: language,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && data.data && data.data.translations && data.data.translations[0]) {
+          this.setState({ outputText: data.data.translations[0].translatedText });
+        } else {
+          console.error('Error: Unable to translate text');
+        }
+      })
+      .catch((error) => console.error('Error:', error));
   }
 
   render() {
-    const { timeZone, forecast, location } = this.state;
+    const { inputText, outputText, language } = this.state;
     return (
-      <div>
-        <h1>Api Call</h1>
-        <p><a href="https://api.weather.gov/points/39.7456,-97.0892">API Link</a></p>
-        <p>Time Zone: {timeZone}</p>
-        <p>Forecast: {forecast}</p>
-        <p>Location: {location}</p>
+      <div className="App">
+        <h1>Google Translate API</h1>
+        <form onSubmit={this.handleSubmit}>
+          <textarea
+            name="inputText"
+            value={inputText}
+            onChange={this.handleInputChange}
+            placeholder="Enter text to translate"
+          />
+          <select name="language" value={language} onChange={this.handleInputChange}>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+          </select>
+          <button type="submit">Translate</button>
+        </form>
+        <textarea readOnly value={outputText} placeholder="Translated text" />
       </div>
     );
   }
 }
 
-export default ApiCall;
+export default App;
