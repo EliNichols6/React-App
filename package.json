@@ -3,24 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "https://EliNichols6.github.io/React-App",
+  "main": "public/electron.js",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.3.0-alpha1",
     "browser-request": "^0.3.3",
+    "concurrently": "^8.0.1",
+    "cors": "^2.8.5",
+    "electron-is-dev": "^2.0.0",
+    "express": "^4.18.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
+  "proxy": "http://localhost:3001",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "electron-start": "electron .",
+    "electron-build": "npm run build && electron .",
+    "server": "node server.js",
+    "dev": "concurrently \"npm run server\" \"npm run start\""
   },
   "eslintConfig": {
     "extends": [
@@ -41,6 +51,7 @@
     ]
   },
   "devDependencies": {
+    "electron": "^24.0.0",
     "gh-pages": "^5.0.0"
   }
 }
