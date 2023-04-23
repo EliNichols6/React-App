@@ -9,18 +9,19 @@ class App extends Component {
       outputText: '',
       language: 'es',
       apiKey: 'AIzaSyA6APQUuxeJUC_nkhOslI0HKZRjINMHrxU',
+      resourceId: '',
     };
   }
 
   handleInputChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
-  }
+  };
 
   handleSubmit = (event) => {
     event.preventDefault();
     this.translateText();
-  }
+  };
 
   translateText = () => {
     const { inputText, language, apiKey } = this.state;
@@ -42,10 +43,59 @@ class App extends Component {
         }
       })
       .catch((error) => console.error('Error:', error));
-  }
+  };
+
+  getResource = () => {
+    const { resourceId } = this.state;
+    fetch(`/resource/${resourceId}`, {
+      method: 'GET',
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Resource fetched:', data);
+        alert('Resource fetched');
+
+      });
+  };
+
+  createResource = () => {
+    fetch('/resource', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+      }),
+    }).then(() => {
+      console.log('Resource created');
+      alert('Resource created');
+
+    });
+  };
+
+  updateResource = () => {
+    const { resourceId } = this.state;
+    fetch(`/resource/${resourceId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+      }),
+    }).then(() => {
+      console.log('Resource updated');
+      alert('Resource updated');
+    });
+  };
+
+  deleteResource = () => {
+    const { resourceId } = this.state;
+    fetch(`/resource/${resourceId}`, {
+      method: 'DELETE',
+    }).then(() => {
+      console.log('Resource deleted');
+      alert('Resource deleted');
+    });
+  };
 
   render() {
-    const { inputText, outputText, language } = this.state;
+    const { inputText, outputText, language, resourceId } = this.state;
     return (
       <div className="App">
         <h1>Google Translate API</h1>
@@ -65,8 +115,29 @@ class App extends Component {
           <button type="submit">Translate</button>
         </form>
         <textarea readOnly value={outputText} placeholder="Translated text" />
+
+        <h2>RESTful API</h2>
+        <input
+          type="text"
+          name="resourceId"
+          value={resourceId}
+          onChange={this.handleInputChange}
+          placeholder="Resource ID"
+        />
+        <button onClick={this.getResource}>Get Resource</button>
+        <button onClick={this.createResource}>Create Resource</button>
+        <button onClick={this.updateResource}>Update Resource</button>
+        <button onClick={this.deleteResource}>Delete Resource</button>
       </div>
     );
+  }
+  componentDidMount() {
+    const resourceId = 1; 
+    fetch(`/resource/${resourceId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      });
   }
 }
 
